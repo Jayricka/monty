@@ -1,17 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stddef.h>
 #include <string.h>
 #include "monty.h"
 
+#define MAX_LINE_LENGTH 1024
+
+/**
+* execute_file - Execute instructions from a file
+* @filename: The name of the file to read instructions from
+*/
+void execute_file(const char *filename)
+{
+FILE *file;
+char line[MAX_LINE_LENGTH];
+unsigned int line_number = 0;
+stack_t *stack = NULL;
+size_t line_length;
+
+file = fopen(filename, "r");
+if (file == NULL)
+{
+fprintf(stderr, "Error opening file: %s\n", filename);
+exit(EXIT_FAILURE);
+}
+
+while (fgets(line, sizeof(line), file) != NULL)
+{
+line_number++;
+line_length = strlen(line);
+if (line[line_length - 1] == '\n')
+line[line_length - 1] = '\0';  /* Remove newline character */
+execute_instruction(line, &stack, line_number);
+}
+
+fclose(file);
+free_stack(stack);
+}
 /**
 * execute_instruction - Parse and execute a single instruction
 * @instruction: The instruction string
 * @stack: Pointer to the top of the stack
 * @line_number: The line number in the file
 */
-void execute_instruction(char *instruction, stack_t **stack,
-unsigned int line_number)
+void execute_instruction(char *instruction, stack_t **stack, unsigned int line_number)
 {
 char *opcode;
 int arg;
@@ -22,7 +53,6 @@ return;
 
 if (strcmp(opcode, "push") == 0)
 {
-/* Extract the argument for push */
 char *arg_str = strtok(NULL, " \t\n");
 if (arg_str == NULL)
 {
@@ -45,67 +75,35 @@ exit(EXIT_FAILURE);
 }
 
 /**
-* execute_file - Execute instructions from a file
-* @filename: The name of the file to read instructions from
-*/
-void execute_file(const char *filename)
-{
-    FILE *file;
-    char *line = NULL;
-    size_t line_length = 0;
-    ssize_t read;
-    unsigned int line_number = 0;
-    stack_t *stack = NULL;
-
-    file = fopen(filename, "r");
-    if (file == NULL)
-    {
-        fprintf(stderr, "Error opening file: %s\n", filename);
-        exit(EXIT_FAILURE);
-    }
-
-    while (fgets(line, line_length, file) != NULL)
-    {
-        line_number++;
-        read = strlen(line);
-        if (line[read - 1] == '\n')
-            line[read - 1] = '\0';  /* Remove newline character */
-        execute_instruction(line, &stack, line_number);
-    }
-
-    free(line);
-    fclose(file);
-    free_stack(stack);
-}
-/**
 * push - Push an element onto the stack
 * @stack: Pointer to the top of the stack
 * @n: The value to push onto the stack
 */
 void push(stack_t **stack, int n)
 {
-    stack_t *new_node = malloc(sizeof(stack_t));
-    if (new_node == NULL)
-    {
-        fprintf(stderr, "Error: malloc failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    new_node->n = n;
-    new_node->prev = NULL;
-
-    if (*stack != NULL)
-    {
-        new_node->next = *stack;
-        (*stack)->prev = new_node;
-    }
-    else
-    {
-        new_node->next = NULL;
-    }
-
-    *stack = new_node;
+stack_t *new_node = malloc(sizeof(stack_t));
+if (new_node == NULL)
+{
+fprintf(stderr, "Error: malloc failed\n");
+exit(EXIT_FAILURE);
 }
+
+new_node->n = n;
+new_node->prev = NULL;
+
+if (*stack != NULL)
+{
+new_node->next = *stack;
+(*stack)->prev = new_node;
+}
+else
+{
+new_node->next = NULL;
+}
+
+*stack = new_node;
+}
+
 /**
 * pall - Print all elements of the stack
 * @stack: Pointer to the top of the stack
