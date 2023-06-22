@@ -1,10 +1,12 @@
+#include "monty.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "monty.h"
 
-void push(stack_t **stack, int value)
+void push(stack_t **stack, unsigned int line_number)
 {
     stack_t *new_node;
+
+    (void)line_number;
 
     new_node = malloc(sizeof(stack_t));
     if (new_node == NULL)
@@ -13,9 +15,8 @@ void push(stack_t **stack, int value)
         exit(EXIT_FAILURE);
     }
 
-    new_node->n = value;
+    new_node->n = line_number;
     new_node->prev = NULL;
-
     if (*stack == NULL)
     {
         new_node->next = NULL;
@@ -25,6 +26,5 @@ void push(stack_t **stack, int value)
         new_node->next = *stack;
         (*stack)->prev = new_node;
     }
-
     *stack = new_node;
 }
