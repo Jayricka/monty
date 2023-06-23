@@ -1,28 +1,48 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "monty.h"
 
-void process_instruction(char *opcode, char *data, unsigned int line_number,
-stack_t **stack)
+/**
+ * execute - handles the opcode
+ * @linecontent: line linecontent
+ * @stack: head linked list
+ * @line_counter: line counter
+ * @file: pointer to monty file
+ * Return: 0 on success, 1 if opcode is unknown
+ */
+int execute(char *linecontent, stack_t **stack, unsigned int line_counter,
+FILE *file)
 {
-if (strcmp(opcode, "push") == 0)
-{
-/* Example implementation for push opcode */
-/* Convert data to an integer and push it onto the stack */
-int value = atoi(data);
-push(stack, value);
-}
-else if (strcmp(opcode, "pall") == 0)
-{
-/* Example implementation for pall opcode */
-/* Print all the elements in the stack */
-pall(stack);
-}
-else
-{
-/* Handle unknown opcode */
-fprintf(stderr, "L%d: unknown instruction %s\n", line_number, opcode);
-exit(EXIT_FAILURE);
-}
+	instruction_t command_list[] = {
+		{"push", push}, {"mod", modulator}, {"pchar", print_char},
+		{"pstr", print_str}, {"rotl", rotater}, {"rotr", s_rotator},
+		{"queue", queues}, {"stack", stack_p},
+		{"pall", stack_printer}, {"pint", pinter}, {"pop", popper},
+		{"swap", swapper}, {"add", add_top_2}, {"nop", nope},
+		{"sub", subtract_top_2}, {"div", divider}, {"mul", multiplier},
+		{NULL, NULL}
+	};
+	unsigned int i = 0;
+	char *data;
+
+	data = strtok(linecontent, " \n\t");
+	if (data && data[0] == '#')
+		return (0);
+	dataHolder.arg = strtok(NULL, " \n\t");
+	while (command_list[i].opcode && data)
+	{
+		if (strcmp(data, command_list[i].opcode) == 0)
+		{
+			command_list[i].f(stack, line_counter);
+			return (0);
+		}
+		i++;
+	}
+	if (data && command_list[i].opcode == NULL)
+	{
+		fprintf(stderr, "L%d: unknown instruction %s\n", line_counter, data);
+		fclose(file);
+		free(linecontent);
+		free_stak(*stack);
+		exit(EXIT_FAILURE);
+	}
+	return (1);
 }

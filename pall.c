@@ -1,17 +1,21 @@
-#include <stdio.h>
 #include "monty.h"
-
 /**
-* pall - Prints all the values on the stack, starting from the top
-* @stack: Double pointer to the stack
+ * stack_printer - prints the stack
+ * @head: stack head
+ * @line_counter: no used
+ *
 */
-void pall(stack_t **stack)
+void stack_printer(stack_t **head, unsigned int line_counter)
 {
-stack_t *current = *stack;
+	stack_t *h;
+	(void)line_counter;
 
-while (current != NULL)
-{
-printf("%d\n", current->n);
-current = current->next;
-}
+	h = *head;
+	if (h == NULL)
+		return;
+	while (h)
+	{
+		printf("%d\n", h->n);
+		h = h->next;
+	}
 }
